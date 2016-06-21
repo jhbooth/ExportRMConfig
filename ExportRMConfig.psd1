@@ -36,7 +36,7 @@
 	Description = 'Module that leverages the FIMAutomation snap-in and the LithnetRMA module to write FIM/MIM configuration information to XML file.'
 	
 	# Minimum version of the Windows PowerShell engine required by this module
-	PowerShellVersion = '2.0'
+	PowerShellVersion = '3.0'
 	
 	# Name of the Windows PowerShell host required by this module
 	PowerShellHostName = ''
@@ -45,10 +45,10 @@
 	PowerShellHostVersion = ''
 	
 	# Minimum version of the .NET Framework required by this module
-	DotNetFrameworkVersion = '2.0'
+	DotNetFrameworkVersion = '3.5'
 	
 	# Minimum version of the common language runtime (CLR) required by this module
-	CLRVersion = '2.0.50727'
+	CLRVersion = '3.5'
 	
 	# Processor architecture (None, X86, Amd64, IA64) required by this module
 	ProcessorArchitecture = 'None'
