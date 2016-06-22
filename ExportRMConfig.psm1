@@ -1,17 +1,15 @@
-﻿<#	
+﻿<#
 	.NOTES
 	===========================================================================
 	 Created with: 	SAPIEN Technologies, Inc., PowerShell Studio 2016 v5.2.119
 	 Created on:   	2016-04-19 1:29 PM
-	 Created by:   	 
-	 Organization: 	 
+	 Created by:
+	 Organization:
 	 Filename:     	ExportRMConfig.psm1
 	===========================================================================
 	.DESCRIPTION
 		A description of the file.
 #>
-
-Import-Module LithnetRMA
 
 Set-Variable -Name SchemaChangesFile -Value (Join-Path -Path $env:TEMP -ChildPath 'RMConfigSchemaChanges.xml') -Scope Script
 Set-Variable -Name PolicyChangesFile -Value (Join-Path -Path $env:TEMP -ChildPath 'RMConfigPolicyChanges.xml') -Scope Script
@@ -20,48 +18,48 @@ Set-Variable -Name PortalChangesFile -Value (Join-Path -Path $env:TEMP -ChildPat
 <#
 	.SYNOPSIS
 		A brief description of the Get-RMConfigSchemaChanges function.
-	
+
 	.DESCRIPTION
 		A detailed description of the Get-RMConfigSchemaChanges function.
-	
+
 	.PARAMETER Source
 		The description of a the Source parameter.
-	
+
 	.PARAMETER Target
 		The description of a the Target parameter.
-	
+
 	.EXAMPLE
 		PS C:\> Get-RMConfigSchemaChanges -Source 'One value' -Target 32
 		'This is the output'
 		This example shows how to call the Get-RMConfigSchemaChanges function with named parameters.
-	
+
 	.EXAMPLE
 		PS C:\> Get-RMConfigSchemaChanges 'One value' 32
 		'This is the output'
 		This example shows how to call the Get-RMConfigSchemaChanges function with positional parameters.
-	
+
 	.OUTPUTS
 		System.String
-	
+
 	.NOTES
 		For more information about advanced functions, call Get-Help with any
 		of the topics in the links listed below.
-	
+
 	.INPUTS
 		System.String,System.Int32
-	
+
 	.LINK
 		about_modules
-	
+
 	.LINK
 		about_functions_advanced
-	
+
 	.LINK
 		about_comment_based_help
-	
+
 	.LINK
 		about_functions_advanced_parameters
-	
+
 	.LINK
 		about_functions_advanced_methods
 #>
@@ -77,11 +75,11 @@ function Get-RMConfigSchemaChange
 				   Position = 1)]
 		$Target
 	)
-	
+
 	begin
 	{
 		$anchorMap = @{ ObjectTypeDescription = "Name"; AttributeTypeDescription = "Name"; BindingDescription = "BoundObjectType BoundAttributeType"; }
-		
+
 		if (Test-Path -Path $Source)
 		{
 			$sourceSchema = ConvertTo-FIMResource -File (Resolve-Path -Path $Source)
@@ -90,7 +88,7 @@ function Get-RMConfigSchemaChange
 		{
 			Write-Error -Message "$Source does not exist" -ErrorAction Stop
 		}
-		
+
 		if (Test-Path -Path $Target)
 		{
 			$targetSchema = ConvertTo-FIMResource -File (Resolve-Path -Path $Target)
@@ -113,19 +111,19 @@ Export-ModuleMember -Function Get-RMConfigSchemaChange
 <#
 	.SYNOPSIS
 		A brief description of the Get-RMConfigPolicyChange function.
-	
+
 	.DESCRIPTION
 		A detailed description of the Get-RMConfigPolicyChange function.
-	
+
 	.PARAMETER Source
 		A description of the Source parameter.
-	
+
 	.PARAMETER Target
 		A description of the Target parameter.
-	
+
 	.EXAMPLE
 		PS C:\> Get-RMConfigPolicyChange -Source $value1 -Target $value2
-	
+
 	.NOTES
 		Additional information about the function.
 #>
@@ -148,7 +146,7 @@ function Get-RMConfigPolicyChange
 			ActivityInformationConfiguration = "ActivityName";
 			'Function' = "FunctionName";
 		}
-		
+
 		if (Test-Path -Path $Source)
 		{
 			$sourcePolicy = ConvertTo-FIMResource -File (Resolve-Path -Path $Source)
@@ -157,7 +155,7 @@ function Get-RMConfigPolicyChange
 		{
 			Write-Error -Message "$Source does not exist" -ErrorAction Stop
 		}
-		
+
 		if (Test-Path -Path $Target)
 		{
 			$targetPolicy = ConvertTo-FIMResource -File (Resolve-Path -Path $Target)
@@ -173,12 +171,31 @@ function Get-RMConfigPolicyChange
 		$changes = $joinedPolicy | Compare-FIMConfig
 		$changes | ConvertFrom-FIMResource -File $PolicyChangesFile
 		Write-Output ($changes | Where-Object -Property 'State' -Value 'Resolve' -NE)
-		
+
 	}
 }
 Export-ModuleMember -Function Get-RMConfigPolicyChange
 
 
+<#
+	.SYNOPSIS
+		A brief description of the Get-RMConfigPortalChange function.
+
+	.DESCRIPTION
+		A detailed description of the Get-RMConfigPortalChange function.
+
+	.PARAMETER Source
+		A description of the Source parameter.
+
+	.PARAMETER Target
+		A description of the Target parameter.
+
+	.EXAMPLE
+		PS C:\> Get-RMConfigPortalChange -Source $value1 -Target $value2
+
+	.NOTES
+		Additional information about the function.
+#>
 function Get-RMConfigPortalChange
 {
 	[CmdletBinding()]
@@ -202,7 +219,7 @@ function Get-RMConfigPortalChange
 			NavigationBarConfiguration = "DisplayName";
 			SearchScopeConfiguration = "DisplayName SearchScopeResultObjectType Order"
 		}
-		
+
 		if (Test-Path -Path $Source)
 		{
 			$sourcePortal = ConvertTo-FIMResource -File (Resolve-Path -Path $Source)
@@ -211,7 +228,7 @@ function Get-RMConfigPortalChange
 		{
 			Write-Error -Message "$Source does not exist" -ErrorAction Stop
 		}
-		
+
 		if (Test-Path -Path $Target)
 		{
 			$targetPortal = ConvertTo-FIMResource -File (Resolve-Path -Path $Target)
@@ -227,7 +244,7 @@ function Get-RMConfigPortalChange
 		$changes = $joinedPolicy | Compare-FIMConfig
 		$changes | ConvertFrom-FIMResource -File $PortalChangesFile
 		Write-Output ($changes | Where-Object -Property 'State' -Value 'Resolve' -NE)
-		
+
 	}
 }
 Export-ModuleMember -Function Get-RMConfigPortalChange
@@ -235,25 +252,25 @@ Export-ModuleMember -Function Get-RMConfigPortalChange
 <#
 	.SYNOPSIS
 		A brief description of the Export-RMConfigSchema function.
-	
+
 	.DESCRIPTION
 		A detailed description of the Export-RMConfigSchema function.
-	
+
 	.PARAMETER FilePath
 		A description of the FilePath parameter.
-	
+
 	.PARAMETER ImportObject
 		A description of the ImportObject parameter.
-	
+
 	.PARAMETER Append
 		A description of the Append parameter.
-	
+
 	.PARAMETER Force
 		A description of the Force parameter.
-	
+
 	.EXAMPLE
 		PS C:\> Export-RMConfigSchema -FilePath 'Value1' -ImportObject $value2
-	
+
 	.NOTES
 		Additional information about the function.
 #>
@@ -271,7 +288,7 @@ function Export-RMConfigSchema
 		[switch]$Append,
 		[switch]$Force
 	)
-	
+
 	begin
 	{
 		try
@@ -284,9 +301,9 @@ function Export-RMConfigSchema
 			{
 				$FullPath = ([System.IO.Path]::GetFullPath((Join-Path -Path $PWD -ChildPath $FilePath)))
 			}
-			
+
 			Write-Debug -Message $FullPath
-			
+
 			if ($Append)
 			{
 				if (Test-Path -Path $FullPath)
@@ -322,9 +339,9 @@ function Export-RMConfigSchema
 				{
 					New-RMConfigFile -Path $FullPath -Force
 				}
-				
+
 			}
-			
+
 			[xml]$rmConfigFile = Get-Content -Path $FullPath
 			$opsNode = Select-Xml -Xml $rmConfigFile -XPath '//Operations'
 		}
@@ -340,16 +357,16 @@ function Export-RMConfigSchema
 			foreach ($changeObject in $ImportObject)
 			{
 				$objectState = $changeObject.State.ToString()
-				
+
 				if ($objectState -eq 'Resolve')
 				{
 					continue
 				}
-				
-				$newResourceOperationElement = New-ResourceOperation -ImportObject $ImportObject -RefreshSchema
-				
+
+				$newResourceOperationElement = New-ResourceOperationInternal -ImportObject $ImportObject -RefreshSchema
+
 				Write-ChangesGeneric -ImportObject $ImportObject -Element $newResourceOperationElement -ResolveFile $SchemaChangesFile
-				
+
 				$opsNode.Node.AppendChild($newResourceOperationElement) | Out-Null
 			}
 		}
@@ -376,28 +393,28 @@ Export-ModuleMember -Function Export-RMConfigSchema
 <#
 	.SYNOPSIS
 		A brief description of the Export-RMConfigPolicy function.
-	
+
 	.DESCRIPTION
 		A detailed description of the Export-RMConfigPolicy function.
-	
+
 	.PARAMETER FilePath
 		A description of the FilePath parameter.
-	
+
 	.PARAMETER ImportObject
 		A description of the ImportObject parameter.
-	
+
 	.PARAMETER Append
 		A description of the Append parameter.
-	
+
 	.PARAMETER Force
 		A description of the Force parameter.
-	
+
 	.PARAMETER ResolveLive
 		A description of the ResolveLive parameter.
-	
+
 	.EXAMPLE
 		PS C:\> Export-RMConfigPolicy -FilePath 'Value1' -ImportObject $value2
-	
+
 	.NOTES
 		Additional information about the function.
 #>
@@ -416,7 +433,7 @@ function Export-RMConfigPolicy
 		[switch]$Force,
 		[switch]$ResolveLive
 	)
-	
+
 	begin
 	{
 		try
@@ -429,9 +446,9 @@ function Export-RMConfigPolicy
 			{
 				$FullPath = ([System.IO.Path]::GetFullPath((Join-Path -Path $PWD -ChildPath $FilePath)))
 			}
-			
+
 			Write-Debug -Message $FullPath
-			
+
 			if ($Append)
 			{
 				if (Test-Path -Path $FullPath)
@@ -469,9 +486,9 @@ function Export-RMConfigPolicy
 				{
 					New-RMConfigFile -Path $FullPath
 				}
-				
+
 			}
-			
+
 			[xml]$rmConfigFile = Get-Content -Path $FullPath
 			$opsNode = Select-Xml -Xml $rmConfigFile -XPath '//Operations'
 		}
@@ -488,14 +505,14 @@ function Export-RMConfigPolicy
 			{
 				$objectType = $changeObject.ObjectType
 				$objectState = $changeObject.State.ToString()
-				
+
 				if ($objectState -eq 'Delete')
 				{
 					continue
 				}
-				
+
 				$importObjectInfo = Get-ImportObjectInfo -ImportObject $changeObject
-				
+
 				if (-not (Test-Resolved -ImportObject $changeObject -ResolveInService $ResolveLive.IsPresent))
 				{
 					Write-Warning -Message ('{0} does not resolve, object not output' -f $importObjectInfo)
@@ -505,9 +522,9 @@ function Export-RMConfigPolicy
 				{
 					Write-Debug -Message $importObjectInfo
 				}
-				
-				$newResourceOperationElement = New-ResourceOperation -ImportObject $changeObject
-				
+
+				$newResourceOperationElement = New-ResourceOperationInternal -ImportObject $changeObject
+
 				switch ($objectType)
 				{
 					"ActivityInformationConfiguration"
@@ -522,7 +539,7 @@ function Export-RMConfigPolicy
 					{
 						Write-ChangesGeneric -ImportObject $changeObject -Element $newResourceOperationElement -ResolveFile $PolicyChangesFile
 					}
-					
+
 					"ManagementPolicyRule"
 					{
 						Write-ChangesGeneric -ImportObject $changeObject -Element $newResourceOperationElement -ResolveFile $PolicyChangesFile
@@ -558,7 +575,7 @@ function Export-RMConfigPolicy
 			throw
 		}
 	}
-	
+
 	end
 	{
 		try
@@ -574,6 +591,34 @@ function Export-RMConfigPolicy
 Export-ModuleMember -Function Export-RMConfigPolicy
 
 
+<#
+	.SYNOPSIS
+		A brief description of the Export-RMConfigPortal function.
+	
+	.DESCRIPTION
+		A detailed description of the Export-RMConfigPortal function.
+	
+	.PARAMETER FilePath
+		A description of the FilePath parameter.
+	
+	.PARAMETER ImportObject
+		A description of the ImportObject parameter.
+	
+	.PARAMETER Append
+		A description of the Append parameter.
+	
+	.PARAMETER Force
+		A description of the Force parameter.
+	
+	.PARAMETER ResolveLive
+		A description of the ResolveLive parameter.
+	
+	.EXAMPLE
+		PS C:\> Export-RMConfigPortal -FilePath 'Value1' -ImportObject $value2
+	
+	.NOTES
+		Additional information about the function.
+#>
 function Export-RMConfigPortal
 {
 	[CmdletBinding(ConfirmImpact = 'High',
@@ -589,7 +634,7 @@ function Export-RMConfigPortal
 		[switch]$Force,
 		[switch]$ResolveLive
 	)
-	
+
 	begin
 	{
 		try
@@ -602,9 +647,9 @@ function Export-RMConfigPortal
 			{
 				$FullPath = ([System.IO.Path]::GetFullPath((Join-Path -Path $PWD -ChildPath $FilePath)))
 			}
-			
+
 			Write-Debug -Message $FullPath
-			
+
 			if ($Append)
 			{
 				if (Test-Path -Path $FullPath)
@@ -642,9 +687,9 @@ function Export-RMConfigPortal
 				{
 					New-RMConfigFile -Path $FullPath
 				}
-				
+
 			}
-			
+
 			[xml]$rmConfigFile = Get-Content -Path $FullPath
 			$opsNode = Select-Xml -Xml $rmConfigFile -XPath '//Operations'
 		}
@@ -661,14 +706,14 @@ function Export-RMConfigPortal
 			{
 				$objectType = $changeObject.ObjectType
 				$objectState = $changeObject.State.ToString()
-				
+
 				if ($objectState -eq 'Delete')
 				{
 					continue
 				}
-				
+
 				$importObjectInfo = Get-ImportObjectInfo -ImportObject $changeObject
-				
+
 				if (-not (Test-Resolved -ImportObject $changeObject -ResolveInService $ResolveLive.IsPresent))
 				{
 					Write-Warning -Message ('{0} does not resolve, object not output' -f $importObjectInfo)
@@ -678,19 +723,11 @@ function Export-RMConfigPortal
 				{
 					Write-Debug -Message $importObjectInfo
 				}
-				
-				$newResourceOperationElement = New-ResourceOperation -ImportObject $changeObject
-				
+
+				$newResourceOperationElement = New-ResourceOperationInternal -ImportObject $changeObject
+
 				switch ($objectType)
 				{
-					<#
-					HomepageConfiguration
-NavigationBarConfiguration
-ObjectVisualizationConfiguration
-PortalUIConfiguration
-SearchScopeConfiguration
-
-					#>
 					"HomepageConfiguration"
 					{
 						Write-ChangesGeneric -ImportObject $changeObject -Element $newResourceOperationElement -ResolveFile $PortalChangesFile
@@ -705,7 +742,7 @@ SearchScopeConfiguration
 					}
 					"SearchScopeConfiguration"
 					{
-						Write-ChangesGeneric -ImportObject $changeObject -Element $newResourceOperationElement -ResolveFile $PortalChangesFile
+						Write-ChangesSearchScope -ImportObject $changeObject -Element $newResourceOperationElement
 					}
 					"ObjectVisualizationConfiguration"
 					{
@@ -724,7 +761,7 @@ SearchScopeConfiguration
 			throw
 		}
 	}
-	
+
 	end
 	{
 		try
@@ -743,19 +780,19 @@ Export-ModuleMember -Function Export-RMConfigPortal
 <#
 	.SYNOPSIS
 		A brief description of the Resolve-UuidFromFile function.
-	
+
 	.DESCRIPTION
 		A detailed description of the Resolve-UuidFromFile function.
-	
+
 	.PARAMETER ChangeFile
 		A description of the ChangeFile parameter.
-	
+
 	.PARAMETER Uuid
 		A description of the Uuid parameter.
-	
+
 	.EXAMPLE
 		PS C:\> Resolve-UuidFromFile -ChangeFile $value1 -Uuid $value2
-	
+
 	.NOTES
 		Additional information about the function.
 #>
@@ -769,10 +806,10 @@ function Resolve-UuidFromFile
 		[Parameter(Mandatory = $true)]
 		$Uuid
 	)
-	
+
 	if (Test-Path -Path $ChangeFile)
 	{
-		
+
 		if ($Uuid -match '^urn:uuid:[-0-9a-f]{36}$')
 		{
 			$XPath = '//ImportObject/SourceObjectIdentifier[text()="{0}"]/..' -f $Uuid
@@ -789,18 +826,18 @@ function Resolve-UuidFromFile
 		}
 		else
 		{
-			Write-Error -Message "Uuid is not really a UUID! Really!" -ErrorAction Stop
+			Write-Error -Message "Uuid is not really a UUID! Really! $Uuid" -ErrorAction Stop
 		}
 	}
 	else
 	{
 		Write-Error -Message "WTF? $ChangeFile does not exist! Wanker!" -ErrorAction Stop
 	}
-	
+
 	if (!$filterfound)
 	{
 		$xml = Select-Xml -Path $ChangeFile -XPath $XPath
-		
+
 		if ($xml)
 		{
 			Write-Output ('{0}|{1}|{2}' -f $xml.Node.ObjectType, $xml.Node.AnchorPairs.JoinPair.AttributeName, $xml.Node.AnchorPairs.JoinPair.AttributeValue)
@@ -814,26 +851,26 @@ function Resolve-UuidFromFile
 	{
 		Write-Output $toOutput
 	}
-	
+
 }
 Export-ModuleMember -Function Resolve-UuidFromFile
 
 <#
 	.SYNOPSIS
 		Creates new empty configuration file
-	
+
 	.DESCRIPTION
 		A detailed description of the New-RMConfigFile function.
-	
+
 	.PARAMETER Path
 		A description of the Path parameter.
-	
+
 	.PARAMETER Force
 		A description of the Force parameter.
-	
+
 	.EXAMPLE
 		PS C:\> New-RMConfigFile -Path $value1
-	
+
 	.NOTES
 		Additional information about the function.
 #>
@@ -848,7 +885,7 @@ function New-RMConfigFile
 		[Parameter(Position = 1)]
 		[switch]$Force
 	)
-	
+
 	if ([System.IO.Path]::IsPathRooted($Path))
 	{
 		$FullPath = ([System.IO.Path]::GetFullPath($Path))
@@ -857,7 +894,7 @@ function New-RMConfigFile
 	{
 		$FullPath = ([System.IO.Path]::GetFullPath((Join-Path -Path $PWD -ChildPath $Path)))
 	}
-	
+
 	if (Test-Path $FullPath)
 	{
 		if ($Force -or $PSCmdlet.ShouldContinue('Would you like to overwrite it?', "File exists: $FullPath"))
@@ -869,30 +906,30 @@ function New-RMConfigFile
 			Write-Error -Message "Will not overwrite $FullPath" -ErrorAction Stop
 		}
 	}
-	
+
 	# get an XmlTextWriter to create the XML
 	$XmlWriter = New-Object System.XMl.XmlTextWriter($FullPath, (New-Object -TypeName System.Text.UTF8Encoding -ArgumentList $true))
-	
+
 	# choose a pretty formatting
 	$xmlWriter.Formatting = 'Indented'
 	$xmlWriter.Indentation = 2
 	$XmlWriter.IndentChar = ' '
-	
+
 	# write the header
 	$xmlWriter.WriteStartDocument()
-	
+
 	# Create root element
 	$XmlWriter.WriteComment('Import this file with Import-RMConfig cmdlet in the Lithnet FIM/MIM Service PowerShell Module')
 	$XmlWriter.WriteStartElement('Lithnet.ResourceManagement.ConfigSync')
-	
+
 	# Create Variables section
 	$xmlWriter.WriteStartElement('Variables')
 	$XmlWriter.WriteEndElement()
-	
+
 	# Create the 'Operations' section
 	$XmlWriter.WriteStartElement('Operations')
 	$xmlWriter.WriteEndElement()
-	
+
 	# finalize the document
 	$xmlWriter.WriteEndDocument()
 	$xmlWriter.Flush()
@@ -900,7 +937,8 @@ function New-RMConfigFile
 }
 Export-ModuleMember -Function New-RMConfigFile
 
-function New-ResourceOperation
+
+function New-ResourceOperationInternal
 {
 	[CmdletBinding()]
 	param
@@ -909,19 +947,19 @@ function New-ResourceOperation
 		$ImportObject,
 		[switch]$RefreshSchema
 	)
-	
+
 	$objectState = $ImportObject.State.ToString()
-	
+
 	# Create the element
 	$resOp = $rmConfigFile.CreateElement('ResourceOperation')
-	
+
 	# Create the attributes for the ResourceOperation element
 	$opAttr = $rmConfigFile.CreateAttribute('operation')
 	$rTypeAttr = $rmConfigFile.CreateAttribute('resourceType')
 	$idAttr = $rmConfigFile.CreateAttribute('id')
-	
+
 	$rTypeAttr.Value = $ImportObject.ObjectType
-	
+
 	switch ($objectState)
 	{
 		'Create'
@@ -945,19 +983,19 @@ function New-ResourceOperation
 			$idAttr.Value = $ImportObject.SourceObjectIdentifier
 		}
 	}
-	
+
 	# Add the attributes to the ResourceOperation element
 	$resOp.Attributes.Append($opAttr) | Out-Null
 	$resOp.Attributes.Append($rTypeAttr) | Out-Null
 	$resOp.Attributes.Append($idAttr) | Out-Null
-	
+
 	if ($RefreshSchema)
 	{
 		$refreshAttribute = $rmConfigFile.CreateAttribute('refresh-schema')
 		$refreshAttribute.Value = 'after-operation'
 		$resOp.Attributes.Append($refreshAttribute) | Out-Null
 	}
-	
+
 	# create anchors section
 	$anchorAttributesElement = $rmConfigFile.CreateElement('AnchorAttributes')
 	foreach ($anchor in $ImportObject.AnchorPairs)
@@ -966,9 +1004,9 @@ function New-ResourceOperation
 		$anchorElement.InnerText = $anchor.AttributeName
 		$anchorAttributesElement.AppendChild($anchorElement) | Out-Null
 	}
-	
+
 	$resOp.AppendChild($anchorAttributesElement) | Out-Null
-	
+
 	$attributeOperationsElement = $rmConfigFile.CreateElement('AttributeOperations')
 	if ($ImportObject.State -eq 'Put')
 	{
@@ -1001,16 +1039,16 @@ function Write-ChangesGeneric
 		[Parameter(Mandatory = $true)]
 		[string]$ResolveFile
 	)
-	
+
 	$attrOps = $Element.SelectSingleNode('./AttributeOperations')
-	
+
 	# Create an AttributeOperation element for each change
 	foreach ($change in $ImportObject.Changes)
 	{
 		$attrOpElement = $rmConfigFile.CreateElement('AttributeOperation')
-		
+
 		$attrOpOperationAttribute = $rmConfigFile.CreateAttribute('operation')
-		
+
 		if ($ImportObject.State -eq 'Create')
 		{
 			$attrOpOperationAttribute.Value = 'add'
@@ -1019,13 +1057,13 @@ function Write-ChangesGeneric
 		{
 			$attrOpOperationAttribute.Value = $change.Operation.ToString().ToLowerInvariant()
 		}
-		
+
 		$nameAttribute = $rmConfigFile.CreateAttribute('name')
 		$nameAttribute.Value = $change.AttributeName
 		$attrOpElement.Attributes.Append($attrOpOperationAttribute) | Out-Null
 		$attrOpElement.Attributes.Append($nameAttribute) | Out-Null
-		
-		
+
+
 		if (!$change.FullyResolved)
 		{
 			$typeAttribute = $rmConfigFile.CreateAttribute('type')
@@ -1037,7 +1075,45 @@ function Write-ChangesGeneric
 		{
 			$attrOpElement.InnerText = $change.AttributeValue
 		}
-		
+
+		$attrOps.AppendChild($attrOpElement) | Out-Null
+	}
+}
+
+function Write-ChangesSearchScope
+{
+	[CmdletBinding()]
+	param
+	(
+		[Parameter(Mandatory = $true)]
+		$ImportObject,
+		[Parameter(Mandatory = $true)]
+		[System.Xml.XmlElement]$Element
+	)
+
+	$attrOps = $Element.SelectSingleNode('./AttributeOperations')
+
+	# Create an AttributeOperation element for each change
+	foreach ($change in $ImportObject.Changes)
+	{
+		$attrOpElement = $rmConfigFile.CreateElement('AttributeOperation')
+
+		$attrOpOperationAttribute = $rmConfigFile.CreateAttribute('operation')
+
+		if ($ImportObject.State -eq 'Create')
+		{
+			$attrOpOperationAttribute.Value = 'add'
+		}
+		else
+		{
+			$attrOpOperationAttribute.Value = $change.Operation.ToString().ToLowerInvariant()
+		}
+
+		$nameAttribute = $rmConfigFile.CreateAttribute('name')
+		$nameAttribute.Value = $change.AttributeName
+		$attrOpElement.Attributes.Append($attrOpOperationAttribute) | Out-Null
+		$attrOpElement.Attributes.Append($nameAttribute) | Out-Null
+		$attrOpElement.InnerText = $change.AttributeValue
 		$attrOps.AppendChild($attrOpElement) | Out-Null
 	}
 }
@@ -1052,16 +1128,16 @@ function Write-ChangesEmailTemplate
 		[Parameter(Mandatory = $true)]
 		[System.Xml.XmlElement]$Element
 	)
-	
+
 	$attrOps = $Element.SelectSingleNode('./AttributeOperations')
-	
+
 	# Create an AttributeOperation element for each change
 	foreach ($change in $ImportObject.Changes)
 	{
 		$attrOpElement = $rmConfigFile.CreateElement('AttributeOperation')
-		
+
 		$attrOpOperationAttribute = $rmConfigFile.CreateAttribute('operation')
-		
+
 		if ($ImportObject.State -eq 'Create')
 		{
 			$attrOpOperationAttribute.Value = 'add'
@@ -1070,34 +1146,34 @@ function Write-ChangesEmailTemplate
 		{
 			$attrOpOperationAttribute.Value = $change.Operation.ToString().ToLowerInvariant()
 		}
-		
+
 		$nameAttribute = $rmConfigFile.CreateAttribute('name')
 		$nameAttribute.Value = $change.AttributeName
 		$attrOpElement.Attributes.Append($attrOpOperationAttribute) | Out-Null
 		$attrOpElement.Attributes.Append($nameAttribute) | Out-Null
-		
-		
+
+
 		if ($change.AttributeName -eq 'EmailBody')
 		{
 			$TextInfo = (Get-Culture).TextInfo
-			
+
 			$name = $ImportObject.AnchorPairs[0].AttributeValue
 			$pName = $name -replace '[-_.]'
 			Write-Debug -Message $pName
-			
+
 			$fName = '.\Files\{0}.emailbody' -f ($TextInfo.ToTitleCase($pName.ToLower()))
 			$fName = $fName -replace ' '
-			
+
 			$FullPath = ([System.IO.Path]::GetFullPath((Join-Path -Path $PWD -ChildPath $fName)))
-			
+
 			Write-Debug -Message $FullPath
-			
+
 			Out-File -FilePath $FullPath -InputObject $change.AttributeValue
-			
+
 			$fileAttribute = $rmConfigFile.CreateAttribute('type')
 			$fileAttribute.Value = 'file'
 			$attrOpElement.Attributes.Append($fileAttribute) | Out-Null
-			
+
 			$attrOpElement.InnerText = $fName
 		}
 		else
@@ -1118,16 +1194,16 @@ function Write-ChangesRCDC
 		[Parameter(Mandatory = $true)]
 		[System.Xml.XmlElement]$Element
 	)
-	
+
 	$attrOps = $Element.SelectSingleNode('./AttributeOperations')
-	
+
 	# Create an AttributeOperation element for each change
 	foreach ($change in $ImportObject.Changes)
 	{
 		$attrOpElement = $rmConfigFile.CreateElement('AttributeOperation')
-		
+
 		$attrOpOperationAttribute = $rmConfigFile.CreateAttribute('operation')
-		
+
 		if ($ImportObject.State -eq 'Create')
 		{
 			$attrOpOperationAttribute.Value = 'add'
@@ -1136,63 +1212,63 @@ function Write-ChangesRCDC
 		{
 			$attrOpOperationAttribute.Value = $change.Operation.ToString().ToLowerInvariant()
 		}
-		
+
 		$nameAttribute = $rmConfigFile.CreateAttribute('name')
 		$nameAttribute.Value = $change.AttributeName
 		$attrOpElement.Attributes.Append($attrOpOperationAttribute) | Out-Null
 		$attrOpElement.Attributes.Append($nameAttribute) | Out-Null
-		
-		
+
+
 		if ($change.AttributeName -eq 'ConfigurationData')
 		{
 			$TextInfo = (Get-Culture).TextInfo
-			
+
 			$name = $ImportObject.AnchorPairs[0].AttributeValue
 			$pName = $name -replace '[-_.]'
 			$pName = $name -replace '^urn:uuid:'
-			
+
 			Write-Debug -Message $pName
-			
+
 			$fName = '.\Files\{0}.XOML.RCDC' -f ($TextInfo.ToTitleCase($pName.ToLower()))
 			$fName = $fName -replace ' '
-			
+
 			$FullPath = ([System.IO.Path]::GetFullPath((Join-Path -Path $PWD -ChildPath $fName)))
-			
+
 			Write-Debug -Message $FullPath
-			
+
 			Out-File -FilePath $FullPath -InputObject $change.AttributeValue
-			
+
 			$fileAttribute = $rmConfigFile.CreateAttribute('type')
 			$fileAttribute.Value = 'file'
 			$attrOpElement.Attributes.Append($fileAttribute) | Out-Null
-			
+
 			$attrOpElement.InnerText = $fName
 		}
 		elseif ($change.AttributeName -eq 'StringResources')
 		{
 			$TextInfo = (Get-Culture).TextInfo
-			
+
 			$name = $ImportObject.AnchorPairs[0].AttributeValue
 			$pName = $name -replace '[-_.]'
 			$pName = $name -replace '^urn:uuid:'
-			
+
 			Write-Debug -Message $pName
-			
+
 			$fName = '.\Files\{0}.Strings.RCDC' -f ($TextInfo.ToTitleCase($pName.ToLower()))
 			$fName = $fName -replace ' '
-			
+
 			$FullPath = ([System.IO.Path]::GetFullPath((Join-Path -Path $PWD -ChildPath $fName)))
-			
+
 			Write-Debug -Message $FullPath
-			
+
 			Out-File -FilePath $FullPath -InputObject $change.AttributeValue
-			
+
 			$fileAttribute = $rmConfigFile.CreateAttribute('type')
 			$fileAttribute.Value = 'file'
 			$attrOpElement.Attributes.Append($fileAttribute) | Out-Null
-			
+
 			$attrOpElement.InnerText = $fName
-			
+
 		}
 		else
 		{
@@ -1213,16 +1289,16 @@ function Write-ChangesWorkflowDefinition
 		[Parameter(Mandatory = $true)]
 		[System.Xml.XmlElement]$Element
 	)
-	
+
 	$attrOps = $Element.SelectSingleNode('./AttributeOperations')
-	
+
 	# Create an AttributeOperation element for each change
 	foreach ($change in $ImportObject.Changes)
 	{
 		$attrOpElement = $rmConfigFile.CreateElement('AttributeOperation')
-		
+
 		$attrOpOperationAttribute = $rmConfigFile.CreateAttribute('operation')
-		
+
 		if ($ImportObject.State -eq 'Create')
 		{
 			$attrOpOperationAttribute.Value = 'add'
@@ -1231,34 +1307,34 @@ function Write-ChangesWorkflowDefinition
 		{
 			$attrOpOperationAttribute.Value = $change.Operation.ToString().ToLowerInvariant()
 		}
-		
+
 		$nameAttribute = $rmConfigFile.CreateAttribute('name')
 		$nameAttribute.Value = $change.AttributeName
 		$attrOpElement.Attributes.Append($attrOpOperationAttribute) | Out-Null
 		$attrOpElement.Attributes.Append($nameAttribute) | Out-Null
-		
-		
+
+
 		if ($change.AttributeName -eq 'XOML')
 		{
 			$TextInfo = (Get-Culture).TextInfo
-			
+
 			$name = $ImportObject.AnchorPairs[0].AttributeValue
-			$pName = $name -replace '[-_.]'
+			$pName = $name -replace '[-_.:]'
 			Write-Debug -Message $pName
-			
+
 			$fName = '.\Files\{0}.Workflow.xoml' -f ($TextInfo.ToTitleCase($pName.ToLower()))
 			$fName = $fName -replace ' '
-			
+
 			$FullPath = ([System.IO.Path]::GetFullPath((Join-Path -Path $PWD -ChildPath $fName)))
-			
+
 			Write-Debug -Message $FullPath
-			
+
 			Out-File -FilePath $FullPath -InputObject $change.AttributeValue
-			
+
 			$fileAttribute = $rmConfigFile.CreateAttribute('type')
 			$fileAttribute.Value = 'file'
 			$attrOpElement.Attributes.Append($fileAttribute) | Out-Null
-			
+
 			$attrOpElement.InnerText = $fName
 		}
 		else
@@ -1280,9 +1356,9 @@ function Write-ChangesSet
 		[Parameter(Mandatory = $true)]
 		[System.Xml.XmlElement]$Element
 	)
-	
+
 	$attrOps = $Element.SelectSingleNode('./AttributeOperations')
-	
+
 	# Create an AttributeOperation element for each change
 	foreach ($change in $ImportObject.Changes)
 	{
@@ -1294,8 +1370,8 @@ function Write-ChangesSet
 		{
 			$operation = $change.Operation.ToString().ToLowerInvariant()
 		}
-		
-		
+
+
 		if ($change.AttributeName -eq 'ExplicitMember')
 		{
 			#Write-Debug -Message $change.AttributeValue
@@ -1307,7 +1383,7 @@ function Write-ChangesSet
 			{
 				$member = $change.AttributeValue
 			}
-			
+
 			if ($member)
 			{
 				$message = ' [{0}] ExplicitMember [{1}] ' -f $operation, $member
@@ -1315,16 +1391,16 @@ function Write-ChangesSet
 			}
 			continue
 		}
-		
+
 		$attrOpElement = $rmConfigFile.CreateElement('AttributeOperation')
-		
+
 		$attrOpOperationAttribute = $rmConfigFile.CreateAttribute('operation')
 		$attrOpOperationAttribute.Value = $operation
 		$nameAttribute = $rmConfigFile.CreateAttribute('name')
 		$nameAttribute.Value = $change.AttributeName
 		$attrOpElement.Attributes.Append($attrOpOperationAttribute) | Out-Null
 		$attrOpElement.Attributes.Append($nameAttribute) | Out-Null
-		
+
 		if ($change.AttributeName -eq 'Filter')
 		{
 			[xml]$filter = $change.AttributeValue
@@ -1358,22 +1434,22 @@ function Write-ChangesSet
 <#
 	.SYNOPSIS
 		Test if object is fully resolved
-	
+
 	.DESCRIPTION
 		A detailed description of the Test-Resolved function.
-	
+
 	.PARAMETER ImportObject
 		A description of the ImportObject parameter.
-	
+
 	.PARAMETER ResolveInService
 		A description of the ResolveInService parameter.
-	
+
 	.PARAMETER
 		A description of the  parameter.
-	
+
 	.EXAMPLE
 		PS C:\> Test-Resolved -ImportObject $value1 - $value2
-	
+
 	.NOTES
 		Additional information about the function.
 #>
@@ -1389,10 +1465,10 @@ function Test-Resolved
 				   Position = 1)]
 		[bool]$ResolveInService
 	)
-	
+
 	$returnValue = $false
 	$objectType = $ImportObject.ObjectType
-	
+
 	switch ($objectType)
 	{
 		"ActivityInformationConfiguration"
@@ -1461,23 +1537,23 @@ function Test-Resolved
 			$returnValue = $false
 		}
 	}
-	
+
 	Write-Output -InputObject $returnValue
 }
 
 <#
 	.SYNOPSIS
 		gets display information about an import object
-	
+
 	.DESCRIPTION
 		gets display information about an import object, such as ObjectType and anchor attribute info
-	
+
 	.PARAMETER ImportObject
 		A description of the ImportObject parameter.
-	
+
 	.EXAMPLE
 				PS C:\> Get-ImportObjectInfo -ImportObject $value1
-	
+
 	.NOTES
 		Additional information about the function.
 #>
@@ -1491,12 +1567,12 @@ function Get-ImportObjectInfo
 		$ImportObject
 	)
 	$anchor = New-Object System.Collections.ArrayList
-	
+
 	foreach ($a in $ImportObject.AnchorPairs)
 	{
 		$anchor.Add(('{0} == {1}' -f $a.AttributeName, $a.AttributeValue)) | Out-Null
 	}
-	
+
 	if ($anchor.Count -gt 1)
 	{
 		$anchorString = $anchor.ToArray() -join ' & '
@@ -1516,45 +1592,45 @@ function Get-ImportObjectInfo
 <#
 	.SYNOPSIS
 		A brief description of the Add-Prerequisites function.
-	
+
 	.DESCRIPTION
 		A detailed description of the Add-Prerequisites function.
-	
+
 	.PARAMETER ChangesFile
 		The description of a the ChangesFile parameter.
-	
+
 	.PARAMETER ImportObject
 		The description of a the ImportObject parameter.
-	
+
 	.EXAMPLE
 		PS C:\> Add-Prerequisites -ChangesFile 'One value' -ImportObject 32
 		'This is the output'
 		This example shows how to call the Add-Prerequisites function with named parameters.
-	
+
 	.EXAMPLE
 		PS C:\> Add-Prerequisites 'One value' 32
 		'This is the output'
 		This example shows how to call the Add-Prerequisites function with positional parameters.
-	
+
 	.OUTPUTS
 		System.String
-	
+
 	.NOTES
 		For more information about advanced functions, call Get-Help with any
 		of the topics in the links listed below.
-	
+
 	.INPUTS
 		System.String,System.Int32
-	
+
 	.LINK
 		about_functions_advanced
-	
+
 	.LINK
 		about_comment_based_help
-	
+
 	.LINK
 		about_functions_advanced_parameters
-	
+
 	.LINK
 		about_functions_advanced_methods
 #>
@@ -1571,7 +1647,7 @@ function Add-Prerequisites
 				   Position = 1)]
 		[object[]]$ImportObject
 	)
-	
+
 	begin
 	{
 		if (Test-Path -Path $ChangesFile)
@@ -1593,13 +1669,13 @@ function Add-Prerequisites
 		{
 			Write-Debug -Message (Get-ImportObjectInfo -ImportObject $object)
 			$prerequisiteArray.Clear()
-			
+
 			foreach ($change in $object.Changes)
 			{
 				if (($change.FullyResolved -eq $false) -and ($change.AttributeName -ne 'ExplicitMember'))
 				{
 					$textToSearch = $change.AttributeValue
-					
+
 					$matchdetails = $regex.Match($textToSearch)
 					while ($matchdetails.Success)
 					{
@@ -1642,7 +1718,7 @@ function Add-Prerequisites
 					}
 				}
 			}
-			
+
 			if ($prerequisiteArray.Count -gt 0)
 			{
 				if (Get-Member -InputObject $object -Name 'Prerequisites')
@@ -1666,6 +1742,22 @@ function Add-Prerequisites
 Export-ModuleMember -Function Add-Prerequisites
 
 
+<#
+	.SYNOPSIS
+		A brief description of the Test-Prerequisites function.
+
+	.DESCRIPTION
+		A detailed description of the Test-Prerequisites function.
+
+	.PARAMETER ImportObject
+		A description of the ImportObject parameter.
+
+	.EXAMPLE
+		PS C:\> Test-Prerequisites -ImportObject $value1
+
+	.NOTES
+		Additional information about the function.
+#>
 function Test-Prerequisites
 {
 	[CmdletBinding()]
@@ -1676,7 +1768,7 @@ function Test-Prerequisites
 				   Position = 0)]
 		[object[]]$ImportObject
 	)
-	
+
 	begin
 	{
 	}
@@ -1685,9 +1777,9 @@ function Test-Prerequisites
 		foreach ($object in $ImportObject)
 		{
 			$goodtogo = $true
-			
+
 			Write-Verbose -Message (Get-ImportObjectInfo -ImportObject $object)
-			
+
 			if ($object.Prerequisites)
 			{
 				foreach ($p in $object.Prerequisites)
@@ -1724,6 +1816,22 @@ function Test-Prerequisites
 Export-ModuleMember -Function Test-Prerequisites
 
 
+<#
+	.SYNOPSIS
+		A brief description of the Resolve-Prerequisites function.
+
+	.DESCRIPTION
+		A detailed description of the Resolve-Prerequisites function.
+
+	.PARAMETER ImportObject
+		A description of the ImportObject parameter.
+
+	.EXAMPLE
+		PS C:\> Resolve-Prerequisites -ImportObject $value1
+
+	.NOTES
+		Additional information about the function.
+#>
 function Resolve-Prerequisites
 {
 	[CmdletBinding()]
@@ -1734,22 +1842,26 @@ function Resolve-Prerequisites
 				   Position = 0)]
 		[object[]]$ImportObject
 	)
-	
+
 	begin
 	{
+		$processed = 0
+		$prereqCount = 0
 	}
 	process
 	{
 		foreach ($object in $ImportObject)
 		{
+			$processed++
 			$goodtogo = $true
-			
+
 			Write-Verbose -Message (Get-ImportObjectInfo -ImportObject $object)
-			
+
 			if ($object.Prerequisites)
 			{
 				foreach ($p in $object.Prerequisites)
 				{
+					$prereqCount++
 					switch ($p.ChangeAttribute)
 					{
 						'Filter'
@@ -1774,8 +1886,21 @@ function Resolve-Prerequisites
 								}
 							}
 						}
+						'SearchScope'
+						{
+							if ($p.Target -and ($p.Source -ne $p.Target))
+							{
+								$scope = $object.Changes | Where-Object AttributeName -EQ 'SearchScope'
+								if ($scope)
+								{
+									$scope.AttributeValue = $scope.AttributeValue -replace $p.Source, $p.Target
+								}
+								$scope.FullyResolved = $true
+							}
+						}
 						default
 						{
+							Write-Debug -Message ('Resolve is looking for {0}' -f $p.ChangeAttribute)
 						}
 					}
 				}
@@ -1789,7 +1914,7 @@ function Resolve-Prerequisites
 	}
 	end
 	{
-		#Write-Output -InputObject $resolvedHash
+		Write-Debug -Message ('Processed {0} prerequisites on {1} objects' -f $prereqCount, $processed)
 	}
 }
 
