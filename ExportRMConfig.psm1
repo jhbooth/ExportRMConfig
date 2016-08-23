@@ -594,28 +594,28 @@ Export-ModuleMember -Function Export-RMConfigPolicy
 <#
 	.SYNOPSIS
 		A brief description of the Export-RMConfigPortal function.
-	
+
 	.DESCRIPTION
 		A detailed description of the Export-RMConfigPortal function.
-	
+
 	.PARAMETER FilePath
 		A description of the FilePath parameter.
-	
+
 	.PARAMETER ImportObject
 		A description of the ImportObject parameter.
-	
+
 	.PARAMETER Append
 		A description of the Append parameter.
-	
+
 	.PARAMETER Force
 		A description of the Force parameter.
-	
+
 	.PARAMETER ResolveLive
 		A description of the ResolveLive parameter.
-	
+
 	.EXAMPLE
 		PS C:\> Export-RMConfigPortal -FilePath 'Value1' -ImportObject $value2
-	
+
 	.NOTES
 		Additional information about the function.
 #>
@@ -854,6 +854,7 @@ function Resolve-UuidFromFile
 
 }
 Export-ModuleMember -Function Resolve-UuidFromFile
+
 
 <#
 	.SYNOPSIS
@@ -1919,3 +1920,154 @@ function Resolve-Prerequisites
 }
 
 Export-ModuleMember -Function Resolve-Prerequisites
+
+
+<#
+	.SYNOPSIS
+		creates new ResourceOperation element
+
+	.DESCRIPTION
+		A detailed description of the New-ResourceOperation function.
+
+	.PARAMETER XmlDoc
+		A description of the XmlDoc parameter.
+
+	.PARAMETER ObjectType
+		A description of the ObjectType parameter.
+
+	.EXAMPLE
+		PS C:\> New-ResourceOperation
+
+	.NOTES
+		Additional information about the function.
+#>
+function New-ResourceOperation
+{
+	[CmdletBinding()]
+	param
+	(
+		[Parameter(Mandatory = $true,
+				   Position = 0)]
+		[System.Xml.XmlDocument]$XmlDoc,
+		[Parameter(Mandatory = $true,
+				   Position = 1)]
+		[string]$ObjectType
+	)
+
+	$resOp = $XmlDoc.CreateElement('ResourceOperation')
+
+	# Create the attributes for the ResourceOperation element
+	$opAttr = $XmlDoc.CreateAttribute('operation')
+	$opAttr.Value = "Add Update"
+	$rTypeAttr = $XmlDoc.CreateAttribute('resourceType')
+	$rTypeAttr.Value = $ObjectType
+	$idAttr = $XmlDoc.CreateAttribute('id')
+	$guid = ('urn:uuid:{0}' -f ([guid]::NewGuid().ToString()))
+	$idAttr.Value = $guid
+
+	[void]($resOp.Attributes.Append($opAttr))
+	[void]($resOp.Attributes.Append($rTypeAttr))
+	[void]($resOp.Attributes.Append($idAttr))
+
+	$opsNode = $XmlDoc.SelectSingleNode('//Operations')
+	[void]($opsNode.AppendChild($resOp))
+
+	Write-Output $guid
+}
+Export-ModuleMember -Function New-ResourceOperation
+
+function Add-Anchor
+{
+	[CmdletBinding()]
+	param
+	(
+		[Parameter(Mandatory = $true)]
+		[System.Xml.XmlDocument]$XmlDoc,
+		[Parameter(Mandatory = $true)]
+		[Alias('ID')]
+		[string]$Identifier,
+		[Parameter(Mandatory = $true)]
+		[string]$Anchor
+	)
+
+	$search = '//ResourceOperation[@id="{0}"]' -f $Identifier
+	$node = $XmlDoc.SelectSingleNode($search)
+	if ($node)
+	{
+		$aa = $node.SelectSingleNode('./AnchorAttributes')
+		if ($aa)
+		{
+			$new = $aa.AppendChild($XmlDoc.CreateElement('AnchorAttribute'))
+			$new.InnerText = $Anchor
+		}
+		else
+		{
+			$aa = $node.AppendChild($XmlDoc.CreateElement('AnchorAttributes'))
+			$new = $aa.AppendChild($XmlDoc.CreateElement('AnchorAttribute'))
+			$new.InnerText = $Anchor
+		}
+	}
+	else
+	{
+		Write-Error -Message ('Cannot find ResourceOperation: {0}' -f $Identifier)
+	}
+}
+Export-ModuleMember -Function Add-Anchor
+
+function Add-AttributeOperation
+{
+	[CmdletBinding()]
+	param
+	(
+		[Parameter(Mandatory = $true)]
+		[System.Xml.XmlDocument]$XmlDoc,
+		[Parameter(Mandatory = $true)]
+		[Alias('ID')]
+		[string]$Identifier,
+		[Parameter(Mandatory = $true)]
+		[ValidateSet('none', 'add', 'replace', 'delete')]
+		[string]$Operation,
+		[Parameter(Mandatory = $true)]
+		[string]$AttributeName,
+		[ValidateSet('file', 'xmlref', 'filter', 'ref')]
+		[string]$Type,
+		[Parameter(Mandatory = $true)]
+		$Value
+	)
+
+	$search = '//ResourceOperation[@id="{0}"]' -f $Identifier
+	$node = $XmlDoc.SelectSingleNode($search)
+	if ($node)
+	{
+		$attributeOps = $node.SelectSingleNode('./AttributeOperations')
+		if (!$attributeOps)
+		{
+			$attributeOps = $node.AppendChild($XmlDoc.CreateElement('AttributeOperations'))
+		}
+		$op = $XmlDoc.CreateElement('AttributeOperation')
+
+		$opAttr = $XmlDoc.CreateAttribute('operation')
+		$opAttr.Value = $Operation.ToLowerInvariant()
+		$nameAttr = $XmlDoc.CreateAttribute('name')
+		$nameAttr.Value = $AttributeName
+		[void]($op.Attributes.Append($opAttr))
+		[void]($op.Attributes.Append($nameAttr))
+
+		if ($PSBoundParameters.ContainsKey('Type'))
+		{
+			$typeAttr = $XmlDoc.CreateAttribute('type')
+			$typeAttr.Value = $Type.ToLowerInvariant()
+			[void]($op.Attributes.Append($typeAttr))
+		}
+		$op.InnerText = $Value
+		[void]($attributeOps.AppendChild($op))
+	}
+	else
+	{
+		Write-Error -Message ('Cannot find ResourceOperation: {0}' -f $Identifier)
+	}
+}
+Export-ModuleMember -Function Add-AttributeOperation
+
+
+
