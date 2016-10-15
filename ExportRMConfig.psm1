@@ -935,6 +935,8 @@ function New-RMConfigFile
 	$xmlWriter.WriteEndDocument()
 	$xmlWriter.Flush()
 	$xmlWriter.Close()
+	
+	Write-Output (Get-Item -Path $FullPath)
 }
 Export-ModuleMember -Function New-RMConfigFile
 
@@ -2069,5 +2071,125 @@ function Add-AttributeOperation
 }
 Export-ModuleMember -Function Add-AttributeOperation
 
-
+<#
+	.SYNOPSIS
+		Writes MIM group objects to file
+	
+	.DESCRIPTION
+		A detailed description of the Write-RMGroup function.
+	
+	.PARAMETER Path
+		A description of the Path parameter.
+	
+	.PARAMETER Group
+		A description of the Group parameter.
+	
+	.EXAMPLE
+				PS C:\> Write-RMGroup -Path 'Value1' -Group $value2
+	
+	.NOTES
+		Additional information about the function.
+#>
+function Write-RMGroup
+{
+	[CmdletBinding()]
+	param
+	(
+		[Parameter(Mandatory = $true,
+				   Position = 0)]
+		[string]$Path,
+		[Parameter(Mandatory = $false,
+				   ValueFromPipeline = $true)]
+		[object[]]$Group
+	)
+	
+	begin
+	{
+		$excludedList = @('ComputedActor', 'ComputedMember', 'Creator', 'CreatedTime', 'DeletedTime', 'DetectedRulesList', 'DomainConfiguration', 'ExpectedRulesList', 'MVObjectID', 'ObjectID', 'ObjectSID', 'ResourceTime', 'SIDHistory')
+		$filePath = New-RMConfigFile -Path $Path -Force
+		[xml]$xmlDoc = Get-Content -Path $filePath
+		
+		
+	}
+	process
+	{
+		foreach ($grp in $Group)
+		{
+			Write-Debug $grp.DisplayName
+			$resourceID = New-ResourceOperation -ObjectType 'Group' -XmlDoc $xmlDoc
+			if ($grp.AccountName)
+			{
+				Add-Anchor -XmlDoc $xmlDoc -Identifier $resourceID -Anchor AccountName
+			}
+			$properties = Get-Member -InputObject $grp -MemberType NoteProperty
+			foreach ($prp in $properties)
+			{
+				if (($prp.Name -notin $excludedList) -and ($grp.$($prp.Name)))
+				{
+					switch ($prp.Name)
+					{
+						'ExplicitMember'
+						{
+							# find the members and write them out
+							
+							foreach ($member in $grp.ExplicitMember)
+							{
+								$u = Get-Resource -ID $member
+								$lookup = '{0}|AccountName|{1}' -f $u.ObjectType, $u.AccountName
+								Add-AttributeOperation -XmlDoc $xmlDoc -Identifier $resourceID -Operation 'add' -AttributeName 'ExplicitMember' -Type 'ref' -Value $lookup
+							}
+						}
+						'Filter'
+						{
+							[xml]$filterXML = $grp.Filter
+							$filterText = $filterXML.Filter.'#text'
+							Add-AttributeOperation -XmlDoc $xmlDoc -Identifier $resourceID -Operation add -AttributeName 'Filter' -Type filter -Value $filterText
+							# how to parse, then replace for the new location if there are guids in it?
+						}
+						default
+						{
+							$itemType = $grp.$($prp.Name).GetType().Name
+							
+							switch ($itemType) {
+								'UniqueIdentifier'
+								{
+									$u = Get-Resource -ID $grp.$($prp.Name)
+									$lookup = '{0}|AccountName|{1}' -f $u.ObjectType, $u.AccountName
+									Add-AttributeOperation -XmlDoc $xmlDoc -Identifier $resourceID -Operation 'add' -AttributeName $prp.Name -Type 'ref' -Value $lookup
+								}
+								'AttributeValueArrayList'
+								{
+									foreach ($item in $grp.$($prp.Name))
+									{
+										$iType = $item.GetType().Name
+										if ($iType -eq 'UniqueIdentifier')
+										{
+											$u = Get-Resource -ID $item
+											$lookup = '{0}|AccountName|{1}' -f $u.ObjectType, $u.AccountName
+											Add-AttributeOperation -XmlDoc $xmlDoc -Identifier $resourceID -Operation 'add' -AttributeName $prp.Name -Type 'ref' -Value $lookup
+										}
+										else
+										{
+											Add-AttributeOperation -XmlDoc $xmlDoc -Identifier $resourceID -Operation add -AttributeName $prp.Name -Value $item
+										}
+									}
+								}
+								default
+								{
+									Add-AttributeOperation -XmlDoc $xmlDoc -Identifier $resourceID -Operation add -AttributeName $prp.Name -Value $grp.$($prp.Name)
+								}
+							}
+						}
+					}
+					
+				}
+			}
+		}
+	}
+	end
+	{
+		$xmlDoc.Save($filePath)
+	}
+}
+Export-ModuleMember -Function Write-RMGroup
 
